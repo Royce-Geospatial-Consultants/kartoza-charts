@@ -14,9 +14,11 @@ global:
   ## imagePullSecrets:
   ##   - myRegistryKeySecretName
   ##
-  imagePullSecrets: []
+  imagePullSecrets:
+    - com-roycegeo-registry
   # Storage class name used to provision PV
-  storageClass: ""
+  storageClass: "standard-rwx"
+  #storageClass: ""
   
 image:
   # Image registry
@@ -24,7 +26,7 @@ image:
   # Image repository
   repository: kartoza/geoserver
   # Image tag
-  tag: "2.24.2"
+  tag: "2.25.2"
   # Image digest
   digest: ""
   # (k8s/containers/image/imagePullPolicy) Image pullPolicy
@@ -45,7 +47,7 @@ geoserverUser: admin
 
 # For prefilled password
 # It will be stored in secret later
-geoserverPassword: ""
+geoserverPassword: "ilikebigbutt$"
 
 httpScheme: https
 
@@ -53,19 +55,19 @@ httpHost: 0.0.0.0
 
 httpPort: 8080
 
-httpProxyName: geoserver.hostname
+httpProxyName: geo-cluster.roycegeo.com
 
-csrfWhitelist: ['geoserver.hostname']
+csrfWhitelist: ['geo-cluster.roycegeo.com,cip.roycegeo.com']
 
 initialMemory: 2G
 
 maximumMemory: 4G
 
-communityExtensions:
+communityExtensions: 'sec-oauth2-openid-connect-plugin,jenkins_geoserver-2.25-SNAPSHOT-cog-plugin,dbcconfig-plugin'
 
-stableExtensions:
+stableExtensions: |
 
-printBaseUrl: geoserver.hostname
+printBaseUrl: geo-cluster.roycegeo.com
 
 # Use this if you have predefined secrets
 existingSecret: |
@@ -101,7 +103,7 @@ configMaps: {}
 extraVolumeMounts: []
 # You may potentially mount a config map/secret
 #  - name: custom-config
-#    mountPath: /docker-entrypoint.sh
+#    mountPath: /opt/geoserver/data_dir/docker-entrypoint.sh
 #    subPath: docker-entrypoint.sh
 #    readOnly: true
 
@@ -149,17 +151,17 @@ strategy:
     #   maxUnavailable: 0
 
 ingress:
-  enabled: false
+  enabled: true
   className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   labels: {}
-  host: geoserver.hostname
+  host: geo-cluster.roycegeo.com
   tls:
-    enabled: false
+    enabled: true
     ## Provide secret name if tls is enabled
-    secretName: geoserver-tls
+    secretName: wildcard-roycegeo-com
 
 
 resources: {}
@@ -176,7 +178,7 @@ resources: {}
 
 autoscaling:
   enabled: false
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: ""
@@ -220,14 +222,14 @@ nodeSelector: {}
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
 ##
 livenessProbe:
-  enabled: true
+  enabled: false
   failureThreshold: 15
   successThreshold: 1
   periodSeconds: 5
   initialDelaySeconds: 120
 
 readinessProbe:
-  enabled: true
+  enabled: false
   failureThreshold: 15
   successThreshold: 1
   periodSeconds: 5
@@ -249,11 +251,12 @@ persistence:
   geoserverDataDir:
     # Enable persistence. If set to false, the data directory
     # will use ephemeral volume
+    #enabled: false
     enabled: true
 
     ## If existingClaim is specified, no PVC will be created and this claim will
     ## be used
-    existingClaim: ""
+    existingClaim: "geoserver-gold-geoserver-standalone-data"
 
     # The path the volume will be mounted at, useful when using different
     # Geoserver images.
@@ -275,7 +278,7 @@ persistence:
     annotations: {}
 
     # specify storageclass
-    storageClass: ""
+    storageClass: "standard-rwx"
 
 ## Database Parameters
 ##
