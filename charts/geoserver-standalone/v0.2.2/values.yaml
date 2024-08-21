@@ -17,7 +17,7 @@ global:
   imagePullSecrets:
     - com-roycegeo-registry
   # Storage class name used to provision PV
-  storageClass: "standard-rwx"
+  storageClass: "standard-rwo"
   #storageClass: ""
   
 image:
@@ -63,11 +63,14 @@ initialMemory: 2G
 
 maximumMemory: 4G
 
-communityExtensions: 'sec-oauth2-openid-connect-plugin,jenkins_geoserver-2.25-SNAPSHOT-cog-plugin,dbcconfig-plugin'
+communityExtensions: 'netcdf-plugin,cog-google-plugin,cog-http-plugin,s3-geotiff-plugin,sec-keycloak-plugin,sec-oauth2-openid-connect-plugin,jenkins_geoserver-2.25-SNAPSHOT-cog-plugin'
 
 stableExtensions: |
 
 printBaseUrl: geo-cluster.roycegeo.com
+
+#added by bdwyer
+geoserverDataDir: /opt/geoserver/data_dir
 
 # Use this if you have predefined secrets
 existingSecret: |
@@ -106,9 +109,18 @@ extraVolumeMounts: []
 #    mountPath: /opt/geoserver/data_dir/docker-entrypoint.sh
 #    subPath: docker-entrypoint.sh
 #    readOnly: true
+# extraVolumeMounts:
+# - name: custom-config
+#   mountPath: /testConfig
+#   readOnly: true
 
 # Define this for extra volume (in pair with extraVolumeMounts)
 extraVolumes: []
+# extraVolumes:
+#   - name: custom-config
+#     configMap:
+#       name: geoserver-config
+
 # You may potentially mount a config map/secret
 #  - name: custom-config
 #    configMap:
@@ -252,11 +264,12 @@ persistence:
     # Enable persistence. If set to false, the data directory
     # will use ephemeral volume
     #enabled: false
-    enabled: true
+    enabled: false
 
     ## If existingClaim is specified, no PVC will be created and this claim will
     ## be used
-    existingClaim: "geoserver-gold-geoserver-standalone-data"
+    #existingClaim: "geoserver-gold-geoserver-standalone-data"
+    existingClaim: ""
 
     # The path the volume will be mounted at, useful when using different
     # Geoserver images.
@@ -273,12 +286,12 @@ persistence:
 
     # Default Access Modes
     accessModes:
-      - ReadWriteMany
+      - ReadWriteOnce
     # You can specify extra annotations here
     annotations: {}
 
     # specify storageclass
-    storageClass: "standard-rwx"
+    storageClass: "standard-rwo"
 
 ## Database Parameters
 ##
