@@ -17,7 +17,7 @@ global:
   imagePullSecrets:
     - com-roycegeo-registry
   # Storage class name used to provision PV
-  storageClass: "standard-rwo"
+  #storageClass: "standard-rwo"
   #storageClass: ""
   
 image:
@@ -43,29 +43,32 @@ annotations: {}
 labels: {}
 
 
-geoserverUser: admin
+#geoserverUser: admin
 
 # For prefilled password
 # It will be stored in secret later
-geoserverPassword: "ilikebigbutt$"
-
-httpScheme: https
-
-httpHost: 0.0.0.0
+#geoserverPassword: "ilikebigbutt$"
 
 httpPort: 8080
+httpScheme: https
+
+#configs from configmap
+
+#httpHost: 0.0.0.0
+
+# Update the following to appropirate to the current deployemnt
 
 httpProxyName: geo-cluster.roycegeo.com
 
-csrfWhitelist: ['geo-cluster.roycegeo.com,cip.roycegeo.com']
+#csrfWhitelist: ['geo-cluster.roycegeo.com,cip.roycegeo.com']
 
-initialMemory: 2G
+#initialMemory: 2G
 
-maximumMemory: 4G
+#maximumMemory: 4G
 
-communityExtensions: 'netcdf-plugin,cog-google-plugin,cog-http-plugin,s3-geotiff-plugin,sec-keycloak-plugin,sec-oauth2-openid-connect-plugin,jenkins_geoserver-2.25-SNAPSHOT-cog-plugin'
+#communityExtensions: 'netcdf-plugin,cog-google-plugin,cog-http-plugin,s3-geotiff-plugin,sec-keycloak-plugin,sec-oauth2-openid-connect-plugin,jenkins_geoserver-2.25-SNAPSHOT-cog-plugin'
 
-stableExtensions: |
+#stableExtensions: |
 
 printBaseUrl: geo-cluster.roycegeo.com
 
@@ -73,10 +76,17 @@ printBaseUrl: geo-cluster.roycegeo.com
 geoserverDataDir: /opt/geoserver/data_dir
 
 # Use this if you have predefined secrets
-existingSecret: |
-
+#existingSecret: |
+# update username and password for admin user
+# user strong password
+# get one here:
+# https://www.lastpass.com/features/password-generator
+existingSecret: geoserver-user-accounts
+  
 # Use this if you have predefined configs
-existingConfig: |
+#existingConfig: |
+existingConfig: geoserver-gold-project-config
+
 
 # Define this for extra GeoServer environment variables
 # Format:
@@ -101,30 +111,38 @@ extraConfig: |
 #  key_1: value_1
 
 configMaps: {}
-
 # Define this for extra volume mounts in the pod
+
+# added:
+# configMaps:
+#   - name: testConfig1
+#     data:
+#       db_config: { .Files.Get "testConfig/geoserver.txt" | indent 4 }
+
 extraVolumeMounts: []
 # You may potentially mount a config map/secret
 #  - name: custom-config
 #    mountPath: /opt/geoserver/data_dir/docker-entrypoint.sh
 #    subPath: docker-entrypoint.sh
 #    readOnly: true
-# extraVolumeMounts:
-# - name: custom-config
-#   mountPath: /testConfig
-#   readOnly: true
+# extraVolumeMounts: 
+#  - name: config-vol
+#    mountPath: /geoserver/some.json
+#    subPath: some.json
+#    readOnly: true
+
 
 # Define this for extra volume (in pair with extraVolumeMounts)
 extraVolumes: []
 # extraVolumes:
+#  - name: config-vol
+#    configMap:
+#      name: my-config
+
+# extraVolumes:
 #   - name: custom-config
 #     configMap:
 #       name: geoserver-config
-
-# You may potentially mount a config map/secret
-#  - name: custom-config
-#    configMap:
-#      name: geoserver-config
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -264,7 +282,7 @@ persistence:
     # Enable persistence. If set to false, the data directory
     # will use ephemeral volume
     #enabled: false
-    enabled: false
+    enabled: true
 
     ## If existingClaim is specified, no PVC will be created and this claim will
     ## be used
@@ -282,7 +300,7 @@ persistence:
     subPath: "data_dir"
 
     # Size of the PV
-    size: 8Gi
+    size: 4Gi
 
     # Default Access Modes
     accessModes:
@@ -291,7 +309,7 @@ persistence:
     annotations: {}
 
     # specify storageclass
-    storageClass: "standard-rwo"
+    storageClass: "standard"
 
 ## Database Parameters
 ##
@@ -313,22 +331,30 @@ externalDatabase:
   ## externalDatabase.host External Database server host
   ##
   host: localhost
+  
   ## externalDatabase.port External Database server port
   ##
   port: 5432
   ## externalDatabase.user External Database username
   ##
   user: app
+  
   ## externalDatabase.password External Database user password
   ##
   password: ""
+  
   ## externalDatabase.database External Database database name
   ##
   database: app
+  
   ## externalDatabase.url External Database database url
   ##
   url: postgres://app:pass@localhost:5432/app
+  #url: postgres://app:pass@localhost:5432/app
+  
+  
   ## externalDatabase.existingSecret The name of an existing secret with database credentials
   ## NOTE: When it's set, the `externalDatabase.password` parameter is ignored
   ##
   existingSecret: ""
+

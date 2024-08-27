@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: geoserver-gold-project-config
+  namespace: geoserver-helm
+  labels:
+    app: geoserver-gold-geoserver-standalone
+    chart: geoserver-standalone-0.2.2
+    release: "geoserver-gold"
+    heritage: "Helm"
+data:
+  httpHost: 0.0.0.0
+  httpProxyName: "geo-cluster.roycegeo.com"
+  communityExtensions: "netcdf-plugin,cog-google-plugin,cog-http-plugin,s3-geotiff-plugin,sec-keycloak-plugin,sec-oauth2-openid-connect-plugin,jenkins_geoserver-2.25-SNAPSHOT-cog-plugin"
+  stableExtensions: ""
+  initialMemory: "2G"
+  maximumMemory: "4G"
+  csrfWhitelist: "[geo-cluster.roycegeo.com,cip.roycegeo.com]"
+  printBaseUrl: geo-cluster.roycegeo.com
